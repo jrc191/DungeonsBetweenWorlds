@@ -2,16 +2,16 @@
 # Unity Standard Ignores for "Dungeons Between Worlds"
 # ==============================================================================
 /[Ll]ibrary/
-/emp/
+/[Tt]emp/
 /[Oo]bj/
-/uild/
-/uilds/
+/[Bb]uild/
+/[Bb]uilds/
 /[Ll]ogs/
-/[Uu]serettings/
+/[Uu]serSettings/
 
 # MemoryCaptures & Recordings can get excessive in size
 /[Mm]emoryCaptures/
-/ecordings/
+/[Rr]ecordings/
 
 # Asset Store Tools overrides
 /[Aa]ssets/AssetStoreTools*
