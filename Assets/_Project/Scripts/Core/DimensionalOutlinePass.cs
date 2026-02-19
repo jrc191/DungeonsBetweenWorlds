@@ -31,14 +31,12 @@ namespace DungeonsBetweenWorlds.Core
             if (settings.outlineMaterial == null) return;
             if (MergeManager.Instance == null) return;
 
-            // Resaltar objetos en layer MergeOnly cuando el jugador está en Normal,
-            // o layer NormalOnly cuando está Merged
-            int targetLayer = MergeManager.Instance != null &&
-                              MergeManager.Instance.CurrentState == MergeState.Normal
-                ? 1 << DimensionalManager.LAYER_3D_ONLY   // reutilizamos como "MergeOnly"
-                : 1 << DimensionalManager.LAYER_2D_ONLY;  // reutilizamos como "NormalOnly"
+            // Resaltar objetos en layer MergeOnly (7) o NormalOnly (6) según estado
+            int targetLayer = MergeManager.Instance.CurrentState == MergeState.Normal
+                ? 1 << 7   // MergeOnly
+                : 1 << 6;  // NormalOnly
 
-            FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.all, oppositeLayer);
+            FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.all, targetLayer);
 
             // Aplicar color al material del outline
             settings.outlineMaterial.SetColor(OutlineColorId, settings.outlineColor);

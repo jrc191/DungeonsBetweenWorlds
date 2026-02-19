@@ -51,12 +51,11 @@ namespace DungeonsBetweenWorlds.Core
         }
 
 #if UNITY_EDITOR
-        // Gizmo para identificar visualmente la dimensión en el editor
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = visibleInDimension == Dimension.TwoD
-                ? new Color(0.2f, 0.6f, 1f, 0.5f)   // Azul = 2D
-                : new Color(1f,   0.4f, 0.1f, 0.5f); // Naranja = 3D
+            Gizmos.color = visibleInState == MergeState.Normal
+                ? new Color(0.2f, 0.6f, 1f, 0.5f)
+                : new Color(1f,   0.4f, 0.1f, 0.5f);
 
             Bounds bounds = new Bounds(transform.position, Vector3.one);
             foreach (var r in GetComponentsInChildren<Renderer>())
