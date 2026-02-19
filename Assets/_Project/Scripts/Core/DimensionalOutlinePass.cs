@@ -29,12 +29,14 @@ namespace DungeonsBetweenWorlds.Core
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             if (settings.outlineMaterial == null) return;
-            if (DimensionalManager.Instance == null) return;
+            if (MergeManager.Instance == null) return;
 
-            // Determinar qué capa renderizar: la de la dimensión OPUESTA
-            int oppositeLayer = DimensionalManager.Instance.CurrentDimension == Dimension.TwoD
-                ? 1 << DimensionalManager.LAYER_3D_ONLY
-                : 1 << DimensionalManager.LAYER_2D_ONLY;
+            // Resaltar objetos en layer MergeOnly cuando el jugador está en Normal,
+            // o layer NormalOnly cuando está Merged
+            int targetLayer = MergeManager.Instance != null &&
+                              MergeManager.Instance.CurrentState == MergeState.Normal
+                ? 1 << DimensionalManager.LAYER_3D_ONLY   // reutilizamos como "MergeOnly"
+                : 1 << DimensionalManager.LAYER_2D_ONLY;  // reutilizamos como "NormalOnly"
 
             FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.all, oppositeLayer);
 

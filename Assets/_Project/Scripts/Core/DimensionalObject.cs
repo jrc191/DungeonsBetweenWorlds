@@ -4,15 +4,15 @@ using DungeonsBetweenWorlds.Core;
 namespace DungeonsBetweenWorlds.Core
 {
     /// <summary>
-    /// Marca este GameObject como exclusivo de una dimensión concreta.
-    /// Se activa (visible + colisionable) solo cuando la dimensión activa coincide.
-    /// Añadir este componente a cualquier objeto del escenario que deba existir solo en 2D o solo en 3D.
+    /// Marca este GameObject como exclusivo de un estado de fusión concreto.
+    /// Visible + colisionable solo cuando el jugador está en el estado indicado.
+    /// Ejemplos: zonas secretas solo accesibles siendo pintura, objetos solo visibles en modo normal.
     /// </summary>
     public class DimensionalObject : MonoBehaviour
     {
-        [Header("Dimensión")]
-        [Tooltip("Este objeto solo será visible y colisionable en esta dimensión")]
-        [SerializeField] private Dimension visibleInDimension = Dimension.TwoD;
+        [Header("Estado requerido")]
+        [Tooltip("Este objeto solo será visible en este estado de fusión")]
+        [SerializeField] private MergeState visibleInState = MergeState.Normal;
 
         [Tooltip("Si true, afecta también a todos los hijos del GameObject")]
         [SerializeField] private bool affectChildren = true;
@@ -33,19 +33,19 @@ namespace DungeonsBetweenWorlds.Core
 
         private void Start()
         {
-            Dimension initial = DimensionalManager.Instance != null
-                ? DimensionalManager.Instance.CurrentDimension
-                : Dimension.TwoD;
+            MergeState initial = MergeManager.Instance != null
+                ? MergeManager.Instance.CurrentState
+                : MergeState.Normal;
 
             ApplyVisibility(initial);
         }
 
-        private void OnEnable()  => DimensionalManager.OnDimensionChanged += ApplyVisibility;
-        private void OnDisable() => DimensionalManager.OnDimensionChanged -= ApplyVisibility;
+        private void OnEnable()  => MergeManager.OnMergeStateChanged += ApplyVisibility;
+        private void OnDisable() => MergeManager.OnMergeStateChanged -= ApplyVisibility;
 
-        private void ApplyVisibility(Dimension dimension)
+        private void ApplyVisibility(MergeState state)
         {
-            bool visible = (dimension == visibleInDimension);
+            bool visible = (state == visibleInState);
             foreach (var r in renderers) r.enabled = visible;
             foreach (var c in colliders) c.enabled = visible;
         }
