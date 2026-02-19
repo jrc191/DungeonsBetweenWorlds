@@ -4,62 +4,46 @@ using DungeonsBetweenWorlds.Core;
 namespace DungeonsBetweenWorlds.Core
 {
     /// <summary>
-    /// Hace que el sprite del objeto siempre mire a la cámara en modo 3D (billboarding).
-    /// En modo 2D se fija a una rotación estática configurable.
-    /// Inspirado en MMBillboard (MoreMountains.Tools) pero integrado con el sistema dimensional.
+    /// Hace que el sprite del jugador siempre mire a la cámara en estado Normal.
+    /// En estado Merged se fija a una rotación estática (aplastado sobre la pared).
     /// </summary>
     public class DimensionalBillboard : MonoBehaviour
     {
-        [Header("Billboard 3D")]
-        [Tooltip("Bloquea el eje Y para que el sprite no se incline — mantiene la verticalidad")]
+        [Header("Billboard (estado Normal)")]
         [SerializeField] private bool lockYAxis = true;
 
-        [Header("Rotación fija en modo 2D")]
-        [SerializeField] private Vector3 rotation2D = new Vector3(90f, 0f, 0f);
+        [Header("Rotación fija en estado Merged")]
+        [SerializeField] private Vector3 rotationMerged = new Vector3(90f, 0f, 0f);
 
         private Camera mainCamera;
-        private Dimension currentDimension = Dimension.TwoD;
+        private MergeState currentState = MergeState.Normal;
 
         private void Start()
         {
-            mainCamera = Camera.main;
-
-            Dimension initial = DimensionalManager.Instance != null
-                ? DimensionalManager.Instance.CurrentDimension
-                : Dimension.TwoD;
-
-            currentDimension = initial;
-            ApplyStaticRotation(initial);
+            mainCamera   = Camera.main;
+            currentState = MergeManager.Instance != null
+                ? MergeManager.Instance.CurrentState
+                : MergeState.Normal;
         }
 
-        private void OnEnable()  => DimensionalManager.OnDimensionChanged += OnDimensionChanged;
-        private void OnDisable() => DimensionalManager.OnDimensionChanged -= OnDimensionChanged;
+        private void OnEnable()  => MergeManager.OnMergeStateChanged += OnMergeStateChanged;
+        private void OnDisable() => MergeManager.OnMergeStateChanged -= OnMergeStateChanged;
 
         private void LateUpdate()
         {
-            if (currentDimension != Dimension.ThreeD || mainCamera == null) return;
+            if (currentState != MergeState.Normal || mainCamera == null) return;
 
-            // Dirección hacia la cámara
-            Vector3 dirToCamera = mainCamera.transform.position - transform.position;
-
-            // Opcional: bloquar el eje Y para que el sprite no se tumbe
-            if (lockYAxis) dirToCamera.y = 0f;
-
-            if (dirToCamera.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(-dirToCamera);
+            Vector3 dir = mainCamera.transform.position - transform.position;
+            if (lockYAxis) dir.y = 0f;
+            if (dir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(-dir);
         }
 
-        private void OnDimensionChanged(Dimension dimension)
+        private void OnMergeStateChanged(MergeState state)
         {
-            currentDimension = dimension;
-            if (dimension == Dimension.TwoD)
-                ApplyStaticRotation(dimension);
-        }
-
-        private void ApplyStaticRotation(Dimension dimension)
-        {
-            if (dimension == Dimension.TwoD)
-                transform.rotation = Quaternion.Euler(rotation2D);
+            currentState = state;
+            if (state == MergeState.Merged)
+                transform.rotation = Quaternion.Euler(rotationMerged);
         }
     }
 }
